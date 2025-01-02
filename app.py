@@ -34,31 +34,31 @@ def display_weather_card(weather_data, day_offset=0):
     daily_variables = list(map(lambda i: daily.Variables(i), range(0, daily.VariablesLength())))
     
     temp_max_var = next(filter(lambda x: x.Variable() == 0 and x.Altitude() == 2, daily_variables), None)
-    daily_temperature_2m_max = temp_max_var.ValuesAsNumpy() if temp_max_var else "NaN"
+    daily_temperature_2m_max = temp_max_var.ValuesAsNumpy() if temp_max_var else None
     
     temp_min_var = next(filter(lambda x: x.Variable() == 1 and x.Altitude() == 2, daily_variables), None)
-    daily_temperature_2m_min = temp_min_var.ValuesAsNumpy() if temp_min_var else "NaN"
+    daily_temperature_2m_min = temp_min_var.ValuesAsNumpy() if temp_min_var else None
     
     weather_code_var = next(filter(lambda x: x.Variable() == 2, daily_variables), None)
-    daily_weather_code = weather_code_var.ValuesAsNumpy() if weather_code_var else "NaN"
+    daily_weather_code = weather_code_var.ValuesAsNumpy() if weather_code_var else None
     
     wind_speed_var = next(filter(lambda x: x.Variable() == 3 and x.Altitude() == 10, daily_variables), None)
-    daily_wind_speed_10m_max = wind_speed_var.ValuesAsNumpy() if wind_speed_var else "NaN"
+    daily_wind_speed_10m_max = wind_speed_var.ValuesAsNumpy() if wind_speed_var else None
 
     hourly_time = range(hourly.Time(), hourly.TimeEnd(), hourly.Interval())
     hourly_variables = list(map(lambda i: hourly.Variables(i), range(0, hourly.VariablesLength())))
     
     temp_2m_var = next(filter(lambda x: x.Variable() == 0 and x.Altitude() == 2, hourly_variables), None)
-    hourly_temperature_2m = temp_2m_var.ValuesAsNumpy() if temp_2m_var else []
+    hourly_temperature_2m = temp_2m_var.ValuesAsNumpy() if temp_2m_var else None
     
     precipitation_var = next(filter(lambda x: x.Variable() == 1, hourly_variables), None)
-    hourly_precipitation = precipitation_var.ValuesAsNumpy() if precipitation_var else []
+    hourly_precipitation = precipitation_var.ValuesAsNumpy() if precipitation_var else None
     
     wind_speed_var = next(filter(lambda x: x.Variable() == 2 and x.Altitude() == 10, hourly_variables), None)
-    hourly_wind_speed_10m = wind_speed_var.ValuesAsNumpy() if wind_speed_var else []
+    hourly_wind_speed_10m = wind_speed_var.ValuesAsNumpy() if wind_speed_var else None
     
     uv_index_var = next(filter(lambda x: x.Variable() == 3, hourly_variables), None)
-    hourly_uv_index = uv_index_var.ValuesAsNumpy() if uv_index_var else []
+    hourly_uv_index = uv_index_var.ValuesAsNumpy() if uv_index_var else None
 
     current_variables = list(map(lambda i: current.Variables(i), range(0, current.VariablesLength())))
     
@@ -80,15 +80,16 @@ def display_weather_card(weather_data, day_offset=0):
     time_range_start = datetime.fromtimestamp(hourly_time[0], timezone.utc).strftime("%I:%M %p")
     time_range_end = datetime.fromtimestamp(hourly_time[-1], timezone.utc).strftime("%I:%M %p")
     time_range = f"{time_range_start}  {time_range_end}"
-    temp_high = daily_temperature_2m_max[day_index]
-    temp_low = daily_temperature_2m_min[day_index]
-    conditions = daily_weather_code[day_index]
-    wind = f"{daily_wind_speed_10m_max[day_index]} m/s"
+    temp_high = daily_temperature_2m_max[day_index] if daily_temperature_2m_max is not None else "NaN"
+    temp_low = daily_temperature_2m_min[day_index] if daily_temperature_2m_min is not None else "NaN"
+    conditions = daily_weather_code[day_index] if daily_weather_code is not None else "NaN"
+    wind = f"{daily_wind_speed_10m_max[day_index]} m/s" if daily_wind_speed_10m_max is not None else "NaN"
     uv = f"Low"
     hourly_temps = {}
-    for i in range(len(hourly_temperature_2m)):
-        time = datetime.fromtimestamp(hourly_time[i], timezone.utc).strftime("%I:%M %p")
-        hourly_temps[time] = hourly_temperature_2m[i]
+    if hourly_temperature_2m is not None:
+        for i in range(len(hourly_temperature_2m)):
+            time = datetime.fromtimestamp(hourly_time[i], timezone.utc).strftime("%I:%M %p")
+            hourly_temps[time] = hourly_temperature_2m[i]
 
     with st.container():
         col1, col2, col3 = st.columns([1, 2, 1])
