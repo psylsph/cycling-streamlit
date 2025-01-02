@@ -32,10 +32,18 @@ def display_weather_card(weather_data, day_offset=0):
 
     daily_time = range(daily.Time(), daily.TimeEnd(), daily.Interval())
     daily_variables = list(map(lambda i: daily.Variables(i), range(0, daily.VariablesLength())))
-    daily_temperature_2m_max = next(filter(lambda x: x.Variable() == 0 and x.Altitude() == 2, daily_variables)).ValuesAsNumpy()
-    daily_temperature_2m_min = next(filter(lambda x: x.Variable() == 1 and x.Altitude() == 2, daily_variables)).ValuesAsNumpy()
-    daily_weather_code = next(filter(lambda x: x.Variable() == 2, daily_variables)).ValuesAsNumpy()
-    daily_wind_speed_10m_max = next(filter(lambda x: x.Variable() == 3 and x.Altitude() == 10, daily_variables)).ValuesAsNumpy()
+    
+    temp_max_var = next(filter(lambda x: x.Variable() == 0 and x.Altitude() == 2, daily_variables), None)
+    daily_temperature_2m_max = temp_max_var.ValuesAsNumpy() if temp_max_var else "NaN"
+    
+    temp_min_var = next(filter(lambda x: x.Variable() == 1 and x.Altitude() == 2, daily_variables), None)
+    daily_temperature_2m_min = temp_min_var.ValuesAsNumpy() if temp_min_var else "NaN"
+    
+    weather_code_var = next(filter(lambda x: x.Variable() == 2, daily_variables), None)
+    daily_weather_code = weather_code_var.ValuesAsNumpy() if weather_code_var else "NaN"
+    
+    wind_speed_var = next(filter(lambda x: x.Variable() == 3 and x.Altitude() == 10, daily_variables), None)
+    daily_wind_speed_10m_max = wind_speed_var.ValuesAsNumpy() if wind_speed_var else "NaN"
 
     hourly_time = range(hourly.Time(), hourly.TimeEnd(), hourly.Interval())
     hourly_variables = list(map(lambda i: hourly.Variables(i), range(0, hourly.VariablesLength())))
