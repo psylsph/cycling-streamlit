@@ -80,13 +80,13 @@ def display_weather_card(weather_data, day_offset=0):
     time_range_start = datetime.fromtimestamp(hourly_time[0], timezone.utc).strftime("%I:%M %p")
     time_range_end = datetime.fromtimestamp(hourly_time[-1], timezone.utc).strftime("%I:%M %p")
     time_range = f"{time_range_start}  {time_range_end}"
-    temp_high = daily_temperature_2m_max[day_index] if daily_temperature_2m_max is not None else "NaN"
-    temp_low = daily_temperature_2m_min[day_index] if daily_temperature_2m_min is not None else "NaN"
-    conditions = daily_weather_code[day_index] if daily_weather_code is not None else "NaN"
-    wind = f"{daily_wind_speed_10m_max[day_index]} m/s" if daily_wind_speed_10m_max is not None else "NaN"
+    temp_high = daily_temperature_2m_max[day_index] if daily_temperature_2m_max is not None and len(daily_temperature_2m_max) > day_index else "NaN"
+    temp_low = daily_temperature_2m_min[day_index] if daily_temperature_2m_min is not None and len(daily_temperature_2m_min) > day_index else "NaN"
+    conditions = daily_weather_code[day_index] if daily_weather_code is not None and len(daily_weather_code) > day_index else "NaN"
+    wind = f"{daily_wind_speed_10m_max[day_index]} m/s" if daily_wind_speed_10m_max is not None and len(daily_wind_speed_10m_max) > day_index else "NaN"
     uv = f"Low"
     hourly_temps = {}
-    if hourly_temperature_2m is not None:
+    if hourly_temperature_2m is not None and len(hourly_temperature_2m) > 0:
         for i in range(len(hourly_temperature_2m)):
             time = datetime.fromtimestamp(hourly_time[i], timezone.utc).strftime("%I:%M %p")
             hourly_temps[time] = hourly_temperature_2m[i]
