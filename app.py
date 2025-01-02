@@ -30,7 +30,7 @@ def fetch_weather_data(latitude, longitude):
 def fetch_location():
     try:
         response = requests.get("https://ipapi.co/json/")
-        response.raise_for_status()
+        #response.raise_for_status()
         data = response.json()
         latitude = data.get("latitude")
         longitude = data.get("longitude")
@@ -46,11 +46,8 @@ def display_weather_card(weather_data, day_offset=0):
     hourly_variables = list(map(lambda i: hourly.Variables(i), range(0, hourly.VariablesLength())))
 
     hourly_temperature_2m = next(filter(lambda x: x.Variable() == Variable.temperature and x.Altitude() == 2, hourly_variables)).ValuesAsNumpy()
-    print(hourly_temperature_2m)
     hourly_precipitation = next(filter(lambda x: x.Variable() == Variable.precipitation, hourly_variables)).ValuesAsNumpy()
-    print(hourly_precipitation)
     hourly_wind_speed_10m = next(filter(lambda x: x.Variable() == Variable.wind_speed and x.Altitude() == 10, hourly_variables)).ValuesAsNumpy()
-    print(hourly_wind_speed_10m)
 
 
     hourly_time = range(hourly.Time(), hourly.TimeEnd(), hourly.Interval())
@@ -123,6 +120,7 @@ def display_weather_card(weather_data, day_offset=0):
 
 latitude, longitude = fetch_location()
 if latitude and longitude:
+    st.write(f"Latitude: {latitude}", f"Longitude: {longitude}")
     weather_data = fetch_weather_data(latitude=latitude, longitude=longitude)
 
     display_weather_card(weather_data, day_offset=0)
