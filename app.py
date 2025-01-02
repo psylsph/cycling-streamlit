@@ -61,9 +61,7 @@ def display_weather_card(weather_data, day_offset=0):
     hourly_uv_index = uv_index_var.ValuesAsNumpy() if uv_index_var else []
 
     current_variables = list(map(lambda i: current.Variables(i), range(0, current.VariablesLength())))
-    current_temperature_2m = next(filter(lambda x: x.Variable() == 0 and x.Altitude() == 2, current_variables)).Value()
-    current_relative_humidity_2m = next(filter(lambda x: x.Variable() == 1 and x.Altitude() == 2, current_variables)).Value()
-    current_wind_speed_10m = next(filter(lambda x: x.Variable() == 2 and x.Altitude() == 10, current_variables)).Value()
+    
     current_temperature_2m_var = next(filter(lambda x: x.Variable() == 0 and x.Altitude() == 2, current_variables), None)
     current_temperature_2m = current_temperature_2m_var.Value() if current_temperature_2m_var else "NaN"
     
