@@ -34,10 +34,11 @@ def fetch_location():
         data = response.json()
         latitude = data.get("latitude")
         longitude = data.get("longitude")
-        return latitude, longitude
+        org = data.get("org")
+        return latitude, longitude, org
     except requests.exceptions.RequestException as e:
         print(f"Error fetching location: {e}")
-        return None, None
+        return None, None, None
 
 def display_weather_card(weather_data, day_offset=0):
     
@@ -118,9 +119,9 @@ def display_weather_card(weather_data, day_offset=0):
 
     #     st.markdown("---")
 
-latitude, longitude = fetch_location()
+latitude, longitude, org = fetch_location()
 if latitude and longitude:
-    st.write(f"Latitude: {latitude}", f"Longitude: {longitude}")
+    st.write(f"Latitude: {latitude}", f"Longitude: {longitude}", f"ISP: {org}")
     weather_data = fetch_weather_data(latitude=latitude, longitude=longitude)
 
     display_weather_card(weather_data, day_offset=0)
