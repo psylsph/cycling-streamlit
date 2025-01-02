@@ -1,6 +1,2 @@
 streamlit
-openmeteo-requests
-pandas
-retry-requests==2.0.0
-requests-cache
 requests
