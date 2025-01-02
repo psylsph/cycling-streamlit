@@ -102,7 +102,7 @@ def display_weather_card(weather_data, day_offset=0):
         with col2:
             if temp_high == "NaN":
                 st.markdown(f"<h1 style='text-align: center; color: red;'>{temp_high}</h1>", unsafe_allow_html=True)
-            else:
+            elif temp_high != "NaN":
                 temp_high_float = float(temp_high)
                 if temp_high_float > 0:
                     st.markdown(f"<h1 style='text-align: center; color: green;'>{temp_high}</h1>", unsafe_allow_html=True)
