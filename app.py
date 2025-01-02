@@ -5,6 +5,7 @@ import requests_cache
 from retry_requests import retry
 import pandas as pd
 from datetime import datetime, timedelta, timezone
+import requests
 
 st.set_page_config(page_title="Cycling Weather", layout="wide")
 
@@ -24,8 +25,19 @@ def fetch_weather_data(latitude, longitude):
     }
     responses = om.weather_api("https://api.open-meteo.com/v1/forecast", params=params)
     response = responses[0]
-    
     return response
+
+def fetch_location():
+    try:
+        response = requests.get("https://ipapi.co/json/")
+        response.raise_for_status()
+        data = response.json()
+        latitude = data.get("latitude")
+        longitude = data.get("longitude")
+        return latitude, longitude
+    except requests.exceptions.RequestException as e:
+        print(f"Error fetching location: {e}")
+        return None, None
 
 def display_weather_card(weather_data, day_offset=0):
     
@@ -109,9 +121,12 @@ def display_weather_card(weather_data, day_offset=0):
 
     #     st.markdown("---")
 
+latitude, longitude = fetch_location()
+if latitude and longitude:
+    weather_data = fetch_weather_data(latitude=latitude, longitude=longitude)
 
-weather_data = fetch_weather_data(latitude=52.52, longitude=13.41)
-
-display_weather_card(weather_data, day_offset=0)
-display_weather_card(weather_data, day_offset=1)
-display_weather_card(weather_data, day_offset=2)
+    display_weather_card(weather_data, day_offset=0)
+    display_weather_card(weather_data, day_offset=1)
+    display_weather_card(weather_data, day_offset=2)
+else:
+    st.error("Could not fetch location. Please ensure you have an internet connection.")
