@@ -64,7 +64,17 @@ def display_weather_card(weather_data, day_offset=0):
     current_temperature_2m = next(filter(lambda x: x.Variable() == 0 and x.Altitude() == 2, current_variables)).Value()
     current_relative_humidity_2m = next(filter(lambda x: x.Variable() == 1 and x.Altitude() == 2, current_variables)).Value()
     current_wind_speed_10m = next(filter(lambda x: x.Variable() == 2 and x.Altitude() == 10, current_variables)).Value()
-    current_uv_index = next(filter(lambda x: x.Variable() == 3, current_variables)).Value()
+    current_temperature_2m_var = next(filter(lambda x: x.Variable() == 0 and x.Altitude() == 2, current_variables), None)
+    current_temperature_2m = current_temperature_2m_var.Value() if current_temperature_2m_var else "NaN"
+    
+    current_relative_humidity_2m_var = next(filter(lambda x: x.Variable() == 1 and x.Altitude() == 2, current_variables), None)
+    current_relative_humidity_2m = current_relative_humidity_2m_var.Value() if current_relative_humidity_2m_var else "NaN"
+    
+    current_wind_speed_10m_var = next(filter(lambda x: x.Variable() == 2 and x.Altitude() == 10, current_variables), None)
+    current_wind_speed_10m = current_wind_speed_10m_var.Value() if current_wind_speed_10m_var else "NaN"
+    
+    current_uv_index_var = next(filter(lambda x: x.Variable() == 3, current_variables), None)
+    current_uv_index = current_uv_index_var.Value() if current_uv_index_var else "NaN"
 
     day_index = day_offset
     date = datetime.fromtimestamp(daily_time[day_index], timezone.utc).strftime("%b %d")
