@@ -47,10 +47,18 @@ def display_weather_card(weather_data, day_offset=0):
 
     hourly_time = range(hourly.Time(), hourly.TimeEnd(), hourly.Interval())
     hourly_variables = list(map(lambda i: hourly.Variables(i), range(0, hourly.VariablesLength())))
-    hourly_temperature_2m = next(filter(lambda x: x.Variable() == 0 and x.Altitude() == 2, hourly_variables)).ValuesAsNumpy()
-    hourly_precipitation = next(filter(lambda x: x.Variable() == 1, hourly_variables)).ValuesAsNumpy()
-    hourly_wind_speed_10m = next(filter(lambda x: x.Variable() == 2 and x.Altitude() == 10, hourly_variables)).ValuesAsNumpy()
-    hourly_uv_index = next(filter(lambda x: x.Variable() == 3, hourly_variables)).ValuesAsNumpy()
+    
+    temp_2m_var = next(filter(lambda x: x.Variable() == 0 and x.Altitude() == 2, hourly_variables), None)
+    hourly_temperature_2m = temp_2m_var.ValuesAsNumpy() if temp_2m_var else []
+    
+    precipitation_var = next(filter(lambda x: x.Variable() == 1, hourly_variables), None)
+    hourly_precipitation = precipitation_var.ValuesAsNumpy() if precipitation_var else []
+    
+    wind_speed_var = next(filter(lambda x: x.Variable() == 2 and x.Altitude() == 10, hourly_variables), None)
+    hourly_wind_speed_10m = wind_speed_var.ValuesAsNumpy() if wind_speed_var else []
+    
+    uv_index_var = next(filter(lambda x: x.Variable() == 3, hourly_variables), None)
+    hourly_uv_index = uv_index_var.ValuesAsNumpy() if uv_index_var else []
 
     current_variables = list(map(lambda i: current.Variables(i), range(0, current.VariablesLength())))
     current_temperature_2m = next(filter(lambda x: x.Variable() == 0 and x.Altitude() == 2, current_variables)).Value()
