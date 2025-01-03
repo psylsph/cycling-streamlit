@@ -4,11 +4,11 @@ from datetime import datetime, timedelta
 import os
 
 # OpenWeatherMap API key (replace with your own key)
-API_KEY = os.getenv("OPEN_WEATHER_API_KEY")
+OPEN_WEATHER_API_KEY = os.getenv("OPEN_WEATHER_API_KEY")
 
 # Function to fetch weather data
 def get_weather_data(city, days=5):  # Changed from days=5
-    url = f"http://api.openweathermap.org/data/2.5/forecast?q={city}&appid={API_KEY}&units=metric"
+    url = f"http://api.openweathermap.org/data/2.5/forecast?q={city}&appid={OPEN_WEATHER_API_KEY}&units=metric"
     response = requests.get(url)
     data = response.json()
     
@@ -78,22 +78,40 @@ def get_score_emoji(score):
 
 # Function to determine the best day for cycling
 def find_best_day(weather_data):
+    # Group data by date and calculate average scores
+    daily_scores = {}
+    for item in weather_data:
+        date_key = item['date'].date()
+        if date_key not in daily_scores:
+            daily_scores[date_key] = {
+                'count': 0,
+                'total_score': 0,
+                'data': item
+            }
+        
+        score = calculate_cycling_score(
+            item['temperature'], 
+            item['wind_speed'], 
+            item['precipitation']
+        )
+        
+        daily_scores[date_key]['count'] += 1
+        daily_scores[date_key]['total_score'] += score
+
+    # Find the day with highest average score
     best_day = None
     best_score = float('-inf')
     
-    for day in weather_data:
-        # Calculate a score based on weather conditions
-        score = calculate_cycling_score(day['temperature'], day['wind_speed'], day['precipitation'])
-        
-        # Update the best day if the current day has a higher score
-        if score > best_score:
-            best_score = score
-            best_day = day
-    
+    for date, data in daily_scores.items():
+        avg_score = data['total_score'] / data['count']
+        if avg_score > best_score:
+            best_score = avg_score
+            best_day = data['data']
+            
     return best_day
 
 def display_weather_forecast(weather_data, city):
-    st.subheader(f"5-Day Weather Forecast for {city}")
+    st.markdown(f"#### {city}")
     
     # Group data by date
     daily_weather = {}
@@ -107,7 +125,7 @@ def display_weather_forecast(weather_data, city):
         score = calculate_cycling_score(data['temperature'], data['wind_speed'], data['precipitation'])
         score_emoji = get_score_emoji(score)
         
-        with st.expander(f"{date.strftime('%A, %B %d')} - Cycling Score: {score}/100 {score_emoji}", expanded=True):
+        with st.expander(f"{date.strftime('%A, %B %d')} - Cycling Score: {score} {score_emoji}", expanded=True):
             st.write(f"🌡️ Temperature: {data['temperature']:.1f}°C")
             st.write(f"💨 Wind Speed: {data['wind_speed']:.1f} m/s")
             st.write(f"🌧️ Precipitation: {data['precipitation']:.1f} mm")
@@ -115,27 +133,36 @@ def display_weather_forecast(weather_data, city):
 
 # Streamlit app
 def main():
+    st.set_page_config(page_icon=":bike:", layout="centered")
     st.title("Best Day for Cycling 🚴‍♂️")
-    st.write("This app shows the 5-day weather forecast and recommends the best day for cycling.")
+    st.html("""
+        <style>
+            .stMainBlockContainer {
+                max-width:23rem;
+            }
+        </style>
+        """
+    )
     
-    # User input for city
-    city = st.text_input("Enter your city:", "London")
+    city = st.text_input("Enter your city:", "Four Marks, East Hampshire")
     
     if st.button("Get Weather Forecast"):
         # Fetch weather data
         weather_data = get_weather_data(city)
         
         if weather_data:
-            # Display 5-day forecast
-            display_weather_forecast(weather_data, city)
-            
-            # Find and display the best day for cycling
+                        # Find and display the best day for cycling
             best_day = find_best_day(weather_data)
             
             if best_day:
-                st.success(f"🎯 Recommended day for cycling: {best_day['date'].strftime('%A, %B %d')}")
+                st.success(f"🎯 Recommended day: {best_day['date'].strftime('%A, %B %d')}")
             else:
-                st.warning("No suitable day found for cycling in the next 5 days.")
+                st.warning("No suitable day found in the next 5 days.")
+                
+            # Display 5-day forecast
+            display_weather_forecast(weather_data, city)
+            
+
         else:
             st.error("Failed to fetch weather data. Please check the city name or try again later.")
 
